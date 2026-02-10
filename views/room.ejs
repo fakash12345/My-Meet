@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פגישה</title>
+    <style>
+        body { margin: 0; background: #202124; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .header { padding: 10px; color: white; display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); }
+        #video-grid { flex-grow: 1; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; overflow-y: auto; padding: 20px; }
+        video { max-width: 45%; max-height: 40vh; object-fit: cover; margin: 10px; border-radius: 8px; border: 2px solid #3c4043; transform: scaleX(-1); }
+        .controls { background: #202124; padding: 20px; display: flex; justify-content: center; gap: 15px; border-top: 1px solid #3c4043; }
+        .ctrl-btn { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .grey { background: #3c4043; color: white; }
+        .red { background: #ea4335; color: white; width: 60px; }
+        .active { background: #ea4335; color: white; } /* למצב מושתק */
+    </style>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <span>מחובר: <%= userEmail %></span>
+        <% if (isHost) { %> <span style="color:#8ab4f8;">👑 מנהל שיחה</span> <% } %>
+    </div>
+
+    <div id="video-grid"></div>
+
+    <div class="controls">
+        <button class="ctrl-btn grey" id="muteBtn" onclick="toggleMute()">🎤</button>
+        <button class="ctrl-btn grey" id="vidBtn" onclick="toggleVideo()">📷</button>
+        <button class="ctrl-btn red" onclick="location.href='/dashboard'">📞</button>
+    </div>
+
+    <script>
+        const ROOM_ID = "<%= roomId %>";
+        const socket = io('/');
+        
+        // הגדרת PeerJS שתעבוד גם ב-Render וגם במחשב
+        const myPeer = new Peer(undefined, {
+            path: '/peerjs',
+            host: location.hostname,
+            port: location.port || (location.protocol === 'https:' ? 443 : 80)
+        });
+
+        const videoGrid = document.getElementById('video-grid');
+        const myVideo = document.createElement('video');
+        myVideo.muted = true;
+        let myStream;
+        const peers = {};
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+            myStream = stream;
+            addVideoStream(myVideo, stream);
+
+            myPeer.on('call', call => {
+                call.answer(stream);
+                const video = document.createElement('video');
+                call.on('stream', userStream => addVideoStream(video, userStream));
+            });
+
+            socket.on('user-connected', userId => {
+                connectToNewUser(userId, stream);
+            });
+        });
+
+        socket.on('user-disconnected', userId => {
+            if (peers[userId]) peers[userId].close();
+        });
+
+        socket.on('admin-closed-room', () => {
+            alert('מנהל המערכת סגר את הפגישה.');
+            window.location.href = '/dashboard';
+        });
+
+        myPeer.on('open', id => socket.emit('join-room', ROOM_ID, id));
+
+        function connectToNewUser(userId, stream) {
+            const call = myPeer.call(userId, stream);
+            const video = document.createElement('video');
+            call.on('stream', userStream => addVideoStream(video, userStream));
+            call.on('close', () => video.remove());
+            peers[userId] = call;
+        }
+
+        function addVideoStream(video, stream) {
+            video.srcObject = stream;
+            video.addEventListener('loadedmetadata', () => video.play());
+            videoGrid.append(video);
+        }
+
+        function toggleMute() { 
+            const audioTrack = myStream.getAudioTracks()[0];
+            audioTrack.enabled = !audioTrack.enabled;
+            document.getElementById('muteBtn').classList.toggle('active');
+        }
+
+        function toggleVideo() { 
+            const videoTrack = myStream.getVideoTracks()[0];
+            videoTrack.enabled = !videoTrack.enabled;
+            document.getElementById('vidBtn').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
