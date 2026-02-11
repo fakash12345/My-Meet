@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הקישור שלך</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #202124; color: white; padding: 50px; }
+        .box { background: #3c4043; padding: 30px; border-radius: 10px; display: inline-block; }
+        input { width: 300px; padding: 10px; font-size: 16px; text-align: center; }
+        .note { color: #ccc; margin-top: 20px; font-size: 0.9em; }
+        a { color: #8ab4f8; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>הקישור לשיחה מוכן! 🎉</h2>
+        <p>שלח את הקישור הזה למשתתפים:</p>
+        <input type="text" value="<%= link %>" readonly onclick="this.select()">
+        <p class="note">
+            הראשון שייכנס לקישור זה יוגדר אוטומטית כ<strong>מנהל השיחה</strong>.<br>
+            <br>
+            <a href="<%= link %>">לחץ כאן כדי להיכנס בעצמך</a>
+        </p>
+    </div>
+</body>
+</html>
