@@ -3,37 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyMeet - כניסה</title>
+    <title>MyMeet - כניסה מהירה</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: #e8eaed; padding: 20px; }
-        .container { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        button { width: 90%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        button.register { background: #34a853; }
-        h1 { color: #202124; }
-        .error { color: red; background: #fce8e6; padding: 10px; border-radius: 5px; font-size: 14px; }
+        body { font-family: sans-serif; text-align: center; background: #202124; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: #3c4043; padding: 40px; border-radius: 10px; width: 90%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold; color: white; }
+        .btn-start { background: #1a73e8; }
+        .btn-schedule { background: #5f6368; }
+        h1 { margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>MyMeet</h1>
-        <% if (error) { %> <div class="error"><%= error %></div> <% } %>
+        <h1>📹 MyMeet</h1>
+        <p>הכנס שם כדי להתחיל</p>
         
-        <h3>כניסה למערכת</h3>
-        <form action="/login" method="POST">
-            <input type="email" name="email" placeholder="אימייל" required>
-            <input type="password" name="password" placeholder="סיסמה" required>
-            <button type="submit">התחבר</button>
-        </form>
-
-        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
-
-        <h3>אין לך חשבון?</h3>
-        <form action="/register" method="POST">
-            <input type="text" name="name" placeholder="שם מלא" required>
-            <input type="email" name="email" placeholder="אימייל" required>
-            <input type="password" name="password" placeholder="סיסמה" required>
-            <button type="submit" class="register">הירשם עכשיו</button>
+        <form action="/join" method="POST">
+            <input type="text" name="name" placeholder="השם שלך" required>
+            <input type="hidden" name="roomId" value="<%= roomId %>">
+            
+            <button type="submit" name="action" value="start" class="btn btn-start">התחל שיחה עכשיו</button>
+            <button type="submit" name="action" value="schedule" class="btn btn-schedule">🔗 צור קישור לאחר כך</button>
         </form>
     </div>
 </body>
